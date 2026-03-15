@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renk Savaşları</title>
+  <meta name="description" content="Renk Savaşları - 4 takımlı çok oyunculu strateji oyunu">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- Lobby Overlay -->
+  <div id="lobby-overlay">
+    <div class="lobby-container lobby-wide">
+      <h1 class="game-title">
+        <span class="title-school">RENK</span>
+        <span class="title-wars">SAVAŞLARI</span>
+      </h1>
+
+      <!-- Nickname Input -->
+      <div id="nickname-section" class="nickname-section">
+        <input type="text" id="input-nickname" placeholder="Takma adını gir..." maxlength="16" autocomplete="off">
+      </div>
+
+      <!-- Global Ranking -->
+      <div id="global-ranking" class="lobby-panel ranking-panel">
+        <p class="section-title">🏆 Genel Sıralama</p>
+        <div id="ranking-list" class="ranking-list">
+          <p class="ranking-empty">Henüz sıralama yok</p>
+        </div>
+      </div>
+
+      <!-- Game Info -->
+      <div class="lobby-panel info-panel">
+        <p class="section-title">📋 Nasıl Oynanır?</p>
+        <ul class="info-list">
+          <li>🎮 <strong>WASD</strong> veya <strong>ok tuşları</strong> ile haritayı kaydır</li>
+          <li>🖱️ <strong>Sol tık</strong> ile birim seç, <strong>sağ tık</strong> ile hareket ettir</li>
+          <li>🛡️ İlk <strong>5 dakika</strong> üsler korumalıdır, saldırılamaz</li>
+          <li>⏱️ 5 dakika sonunda üslere saldırı açılır, rakip üssü yık!</li>
+          <li>♥ Kalp bölgesi: Can yeniler</li>
+          <li>♦ Karo bölgesi: Üretimi hızlandırır</li>
+        </ul>
+      </div>
+
+      <!-- Room Browser -->
+      <div id="room-browser" class="lobby-panel">
+        <p class="section-title">🏟️ Odalar</p>
+        <div id="room-list" class="room-list"></div>
+        <p id="lobby-error" class="error-text"></p>
+      </div>
+
+      <!-- Room Detail (after joining) -->
+      <div id="room-detail" class="lobby-panel" style="display:none">
+        <div class="room-header">
+          <span id="room-code" class="room-code"></span>
+          <button id="btn-leave-room" class="btn btn-small btn-danger">Ayrıl</button>
+        </div>
+
+        <div id="team-selector" class="team-selector">
+          <p class="section-title">Takım Seç</p>
+          <div class="team-grid">
+            <button class="team-btn" data-team="green">
+              <div class="team-color" style="background:#2ecc71"></div>
+              <span>Yeşil</span>
+              <small>Hızlı üretim</small>
+            </button>
+            <button class="team-btn" data-team="purple">
+              <div class="team-color" style="background:#9b59b6"></div>
+              <span>Mor</span>
+              <small>Güçlü saldırı</small>
+            </button>
+            <button class="team-btn" data-team="yellow">
+              <div class="team-color" style="background:#f1c40f"></div>
+              <span>Sarı</span>
+              <small>Yüksek can</small>
+            </button>
+            <button class="team-btn" data-team="gray">
+              <div class="team-color" style="background:#95a5a6"></div>
+              <span>Gri</span>
+              <small>Dengeli</small>
+            </button>
+            <button class="team-btn" data-team="red">
+              <div class="team-color" style="background:#e74c3c"></div>
+              <span>Kırmızı</span>
+              <small>Hızlı</small>
+            </button>
+            <button class="team-btn" data-team="blue">
+              <div class="team-color" style="background:#3498db"></div>
+              <span>Mavi</span>
+              <small>Kurucu</small>
+            </button>
+            <button class="team-btn" data-team="pink">
+              <div class="team-color" style="background:#e91e9c"></div>
+              <span>Pembe</span>
+              <small>Fetihci</small>
+            </button>
+            <button class="team-btn" data-team="orange">
+              <div class="team-color" style="background:#e67e22"></div>
+              <span>Turuncu</span>
+              <small>Tüccar</small>
+            </button>
+          </div>
+        </div>
+
+        <div id="ready-section" class="ready-section">
+          <button id="btn-ready" class="btn btn-ready">
+            <span class="btn-icon">✋</span> HAZIR
+          </button>
+          <p id="ready-info" class="ready-info">Tüm oyuncular hazır olduğunda oyun başlar</p>
+        </div>
+
+        <div id="players-list" class="players-list">
+          <p class="section-title">Oyuncular</p>
+          <div id="players-container"></div>
+        </div>
+
+        <div id="room-chat" class="room-chat-panel">
+          <p class="section-title">💬 Sohbet</p>
+          <div id="room-chat-messages" class="room-chat-messages"></div>
+          <div class="chat-input-row">
+            <input id="room-chat-input" type="text" placeholder="Mesaj yaz..." maxlength="200" autocomplete="off" />
+            <button id="btn-room-chat-send" class="btn btn-chat-send">Gönder</button>
+          </div>
+        </div>
+
+        <div id="countdown-display" class="countdown-display" style="display:none">
+          <span id="countdown-number" class="countdown-number">10</span>
+          <p class="countdown-text">Oyun başlıyor...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Canvas -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud" style="display:none">
+    <div id="hud-top">
+      <div id="team-info" class="hud-panel">
+        <div id="my-team-badge" class="team-badge"></div>
+        <div id="unit-count" class="stat">Birim: 0</div>
+        <div id="zone-count" class="stat">Bölge: 0</div>
+      </div>
+      <div id="scoreboard" class="hud-panel scoreboard collapsible">
+        <button class="collapse-btn" data-target="scoreboard-list">−</button>
+        <p class="scoreboard-title">🏆 Skor</p>
+        <div id="scoreboard-list"></div>
+      </div>
+      <div id="teams-panel" class="teams-inline">
+        <div id="all-teams-info"></div>
+      </div>
+    </div>
+    <div id="hud-bottom">
+      <div class="hud-panel controls-info">
+        <span id="gold-display" style="color:#f1c40f;font-weight:bold;font-size:1.1em;">⛏ 0 Altın</span>
+        <div id="upgrade-panel" class="upgrade-panel">
+          <button id="btn-upgrade-speed" class="btn btn-upgrade" data-type="speed">⚡ Hız Lv0 (100)</button>
+          <button id="btn-upgrade-attack" class="btn btn-upgrade" data-type="attack">⚔️ Atak Lv0 (150)</button>
+          <button id="btn-upgrade-hp" class="btn btn-upgrade" data-type="hp">❤️ Can Lv0 (150)</button>
+          <button id="btn-upgrade-basehp" class="btn btn-upgrade" data-type="baseHp">🏰 Kale Lv0 (200)</button>
+          <button id="btn-upgrade-maxunits" class="btn btn-upgrade" data-type="maxUnits">👥 Asker +10 (100000)</button>
+        </div>
+        <button id="btn-place-defense" class="btn btn-defense" title="Savunma kulesi yerleştir (50 Altın)">🏰 Savunma
+          Kur (50)</button>
+          <button id="btn-place-mine" class="btn btn-mine">💫 Altın Madeni (5000)</button>
+        <span>WASD/Ok: Kamera</span>
+        <span>Sol Tık: Seç</span>
+        <span>Sağ Tık: Taşı</span>
+        <span>Ctrl+A: Hepsini Seç</span>
+        <button id="btn-exit-game" class="btn btn-exit">⬅ Çıkış</button>
+      </div>
+    </div>
+    <!-- Score Event Feed -->
+    <div id="score-feed" class="score-feed"></div>
+    <!-- Chat -->
+    <div id="chat-panel" class="chat-panel">
+      <div id="chat-messages" class="chat-messages"></div>
+      <div class="chat-input-row">
+        <input id="chat-input" type="text" placeholder="Mesaj yaz..." maxlength="200" autocomplete="off" />
+        <button id="btn-chat-send" class="btn btn-chat-send">Gönder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Overlay -->
+  <div id="gameover-overlay" style="display:none">
+    <div class="gameover-container">
+      <h2 id="gameover-title">Oyun Bitti!</h2>
+      <p id="gameover-winner"></p>
+      <button id="btn-back-lobby" class="btn btn-primary">Lobiye Dön</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/network.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>

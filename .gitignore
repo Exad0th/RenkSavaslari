@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Runtime data (contains user IPs, nicknames, etc.)
+nicknames.json
+players.log
+chats.log
+ranking.json
+bans.json
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
